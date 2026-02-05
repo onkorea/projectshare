@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LF Onesphere - 행사별 상품 리스트</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 256px;
+            background-color: #1a1d23;
+            color: white;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            padding: 20px;
+            font-size: 16px;
+            font-weight: 600;
+            border-bottom: 1px solid #2a2d35;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo::before {
+            content: "⚡";
+            color: #6366f1;
+        }
+
+        .menu-header {
+            padding: 16px 20px;
+            background-color: #0f1115;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 500;
+            border-bottom: 1px solid #2a2d35;
+        }
+
+        .menu-tabs {
+            display: flex;
+            background-color: #1a1d23;
+            border-bottom: 1px solid #2a2d35;
+        }
+
+        .menu-tab {
+            flex: 1;
+            padding: 12px 20px;
+            font-size: 13px;
+            cursor: pointer;
+            text-align: center;
+            color: #9ca3af;
+            background-color: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .menu-tab:hover {
+            color: white;
+        }
+
+        .menu-tab.active {
+            color: white;
+            border-bottom-color: white;
+        }
+
+        .menu {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .menu-section {
+            border-bottom: 1px solid #2a2d35;
+        }
+
+        .menu-title {
+            padding: 14px 20px;
+            font-size: 13px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            background-color: #1a1d23;
+            transition: background-color 0.2s;
+        }
+
+        .menu-title:hover {
+            background-color: #232730;
+        }
+
+        .menu-title.expanded {
+            background-color: #232730;
+        }
+
+        .menu-items {
+            background-color: #1a1d23;
+        }
+
+        .menu-item {
+            padding: 12px 20px 12px 40px;
+            font-size: 13px;
+            cursor: pointer;
+            color: #d1d5db;
+            transition: all 0.2s;
+        }
+
+        .menu-item:hover {
+            background-color: #232730;
+            color: white;
+        }
+
+        .menu-item.active {
+            background-color: #3b4252;
+            color: white;
+            border-left: 3px solid #6366f1;
+        }
+
+        .arrow {
+            font-size: 11px;
+            transition: transform 0.2s;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            background-color: white;
+            padding: 15px 30px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 13px;
+        }
+
+        .header-icon {
+            color: #666;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-box {
+            padding: 8px 35px 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            width: 350px;
+            font-size: 13px;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            cursor: pointer;
+        }
+
+        .user-info {
+            font-size: 13px;
+            color: #666;
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+        }
+
+        /* Split Layout */
+        .split-container {
+            display: flex;
+            gap: 20px;
+            height: calc(100vh - 180px);
+        }
+
+        .left-section {
+            width: 450px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .right-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .breadcrumb {
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* Filter Card */
+        .filter-card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* Event List Card */
+        .event-list-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .event-list-header {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .event-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .event-list-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .event-item {
+            padding: 10px 12px;
+            margin-bottom: 6px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .event-item:hover {
+            background-color: #f8f9fa;
+            border-color: #0066ff;
+        }
+
+        .event-item.active {
+            background-color: #e3f2fd;
+            border-color: #0066ff;
+            border-width: 2px;
+        }
+
+        .event-checkbox {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .event-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .event-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 3px;
+        }
+
+        .event-date {
+            font-size: 11px;
+            color: #666;
+        }
+
+        .filter-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: 70px 1fr;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .filter-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .filter-inputs {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-input {
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .filter-input-wide {
+            width: 100%;
+            max-width: 200px;
+        }
+
+        .date-input {
+            width: 130px;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .btn {
+            padding: 7px 18px;
+            border: 1px solid #ddd;
+            background-color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #f5f5f5;
+            border-color: #999;
+        }
+
+        .btn-primary {
+            background-color: #0066ff;
+            color: white;
+            border-color: #0066ff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0052cc;
+        }
+
+        /* Results Card */
+        .results-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .results-title {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .results-count {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .results-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 11px;
+        }
+
+        .btn-save {
+            background-color: #0066ff;
+            color: white;
+            border-color: #0066ff;
+        }
+
+        .btn-save:hover {
+            background-color: #0052cc;
+            border-color: #0052cc;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            flex: 1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        thead {
+            background-color: #f8f9fa;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+
+        th {
+            padding: 12px 10px;
+            text-align: center;
+            font-weight: 600;
+            border-bottom: 2px solid #e0e0e0;
+            white-space: nowrap;
+            background-color: #6d6d6d;
+            color: white;
+        }
+
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #f0f0f0;
+            text-align: center;
+        }
+
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .product-code {
+            color: #0066ff;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .product-code:hover {
+            text-decoration: underline;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .checkbox {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .pagination-info {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .page-btn {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            background-color: white;
+            cursor: pointer;
+            font-size: 12px;
+            border-radius: 3px;
+        }
+
+        .page-btn:hover {
+            background-color: #f0f0f0;
+        }
+
+        .page-btn.active {
+            background-color: #000;
+            color: white;
+            border-color: #000;
+        }
+
+        .page-size {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+        }
+
+        .page-size select {
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    
+        /* History */
+        .history-section {
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .history-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .history-count {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .history-container {
+            border: 1px solid #f0f0f0;
+            border-radius: 6px;
+            overflow-y: auto;
+            max-height: 160px;
+            background-color: white;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .history-table th {
+            padding: 10px 8px;
+            text-align: center;
+            font-weight: 600;
+            border-bottom: 1px solid #e0e0e0;
+            white-space: nowrap;
+            background-color: #f8f9fa;
+            color: #333;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        .history-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #f0f0f0;
+            text-align: center;
+        }
+
+        .history-empty {
+            color: #999;
+            padding: 14px 8px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">LF Onesphere</div>
+            <div class="menu-header">
+                📋 모든 메뉴 보기
+            </div>
+            <div class="menu-tabs">
+                <button class="menu-tab active">전체 메뉴</button>
+                <button class="menu-tab">즐겨찾기</button>
+            </div>
+            <nav class="menu">
+                <div class="menu-section">
+                    <div class="menu-title" onclick="toggleMenu(this)">
+                        <span>전시 관리</span>
+                        <span class="arrow">›</span>
+                    </div>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-title expanded" onclick="toggleMenu(this)">
+                        <span>상품 관리</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="menu-items">
+                        <div class="menu-item">부가정보 관리</div>
+                    </div>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-title expanded" onclick="toggleMenu(this)">
+                        <span>부가정보 관리</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="menu-items">
+                        <div class="menu-item">리뷰 카테고리 관리</div>
+                        <div class="menu-item">상품 리뷰 연동 관리</div>
+                        <div class="menu-item">코스메틱 사은품 관리</div>
+                        <div class="menu-item">사은품 프로모션 관리</div>
+                        <div class="menu-item">시존 정보 비노출 관리</div>
+                        <div class="menu-item">상품 MDP 관리</div>
+                        <div class="menu-item">온라인 촬영관리</div>
+                        <div class="menu-item">촬영일정조회</div>
+                        <div class="menu-item active">행사별 상품 리스트</div>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <a href="#" class="header-icon">📧 LFmail</a>
+                    <a href="#" class="header-icon">👤 담당자 확인</a>
+                </div>
+                <div class="header-right">
+                    <div class="search-container">
+                        <input type="text" class="search-box" placeholder="원스피어 통합검색">
+                        <span class="search-icon">🔍</span>
+                    </div>
+                    <div class="user-info">
+                        김용철 | Mail 서비스기획 BSU (onkorea)
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="content">
+                <div class="page-header">
+                    <h1 class="page-title">
+                        행사별 상품 리스트 ⭐
+                    </h1>
+                    <div class="breadcrumb">🏠 상품 관리 > 부가정보 관리 > 행사별 상품 관리</div>
+                </div>
+
+                <!-- Split Layout Container -->
+                <div class="split-container">
+                    <!-- Left Panel - Event Search -->
+                    <div class="left-section">
+                        <!-- Filter Section -->
+                        <div class="filter-card">
+                            <div class="filter-title">폴더 미선택(0)</div>
+                            
+                            <div class="filter-row">
+                                <label class="filter-label">폴더명</label>
+                                <div class="filter-inputs">
+                                    <input type="text" class="filter-input filter-input-wide" placeholder="폴더명을 입력해주세요">
+                                    <button class="btn btn-small">조회</button>
+                                    <button class="btn btn-small">추가</button>
+                                </div>
+                            </div>
+
+                            <div class="filter-row">
+                                <label class="filter-label">등록일</label>
+                                <div class="filter-inputs">
+                                    <input type="date" class="filter-input date-input" value="2025-01-05">
+                                    <span>-</span>
+                                    <input type="date" class="filter-input date-input" value="2025-02-24">
+                                    <button class="btn btn-small">선택</button>
+                                </div>
+                            </div>
+
+                            <div class="filter-row">
+                                <label class="filter-label">등록자</label>
+                                <div class="filter-inputs">
+                                    <input type="text" class="filter-input filter-input-wide" placeholder="등록자 ID를 입력해주세요">
+                                </div>
+                            </div>
+
+                            <div class="filter-actions">
+                                <button class="btn">🔄 초기화</button>
+                                <button class="btn btn-primary">🔍 조회</button>
+                            </div>
+                        </div>
+
+                        <!-- Event List -->
+                        <div class="event-list-card">
+                            <div class="event-list-header">
+                                <div class="results-title">• 행사 목록</div>
+                                <div class="event-actions">
+                                    <button class="btn btn-small">수정</button>
+                                    <button class="btn btn-small">삭제</button>
+                                    <button class="btn btn-small">복사</button>
+                                    <button class="btn btn-small">공유</button>
+                                </div>
+                            </div>
+                            <div class="event-list-container">
+                                <div class="event-item active" onclick="selectEvent(this)">
+                                    <input type="checkbox" class="event-checkbox" onclick="event.stopPropagation()">
+                                    <div class="event-info">
+                                        <div class="event-name">기획전 - 연말</div>
+                                        <div class="event-date">2025-12-10 ~ 2025-12-31</div>
+                                    </div>
+                                </div>
+                                <div class="event-item" onclick="selectEvent(this)">
+                                    <input type="checkbox" class="event-checkbox" onclick="event.stopPropagation()">
+                                    <div class="event-info">
+                                        <div class="event-name">SS/2026 시간준비</div>
+                                        <div class="event-date">2025-12-17 ~ 2026-01-15</div>
+                                    </div>
+                                </div>
+                                <div class="event-item" onclick="selectEvent(this)">
+                                    <input type="checkbox" class="event-checkbox" onclick="event.stopPropagation()">
+                                    <div class="event-info">
+                                        <div class="event-name">크리스마스 기획전</div>
+                                        <div class="event-date">2025-12-30 ~ 2026-01-10</div>
+                                    </div>
+                                </div>
+                                <div class="event-item" onclick="selectEvent(this)">
+                                    <input type="checkbox" class="event-checkbox" onclick="event.stopPropagation()">
+                                    <div class="event-info">
+                                        <div class="event-name">크리스마스 기획전V0.1</div>
+                                        <div class="event-date">2025-12-14 ~ 2026-01-05</div>
+                                    </div>
+                                </div>
+                                <div class="event-item" onclick="selectEvent(this)">
+                                    <input type="checkbox" class="event-checkbox" onclick="event.stopPropagation()">
+                                    <div class="event-info">
+                                        <div class="event-name">탑탑 오더</div>
+                                        <div class="event-date">2025-12-10 ~ 2026-01-20</div>
+                                    </div>
+                                </div>
+                                <div class="event-item" onclick="selectEvent(this)">
+                                    <input type="checkbox" class="event-checkbox" onclick="event.stopPropagation()">
+                                    <div class="event-info">
+                                        <div class="event-name">개인모니터링</div>
+                                        <div class="event-date">2025-12-11 ~ 2026-02-28</div>
+                                    </div>
+                                </div>
+                                <div class="event-item" onclick="selectEvent(this)">
+                                    <input type="checkbox" class="event-checkbox" onclick="event.stopPropagation()">
+                                    <div class="event-info">
+                                        <div class="event-name">신년상품관리</div>
+                                        <div class="event-date">2025-12-29 ~ 2026-01-31</div>
+                                    </div>
+                                </div>
+                                <div class="event-item" onclick="selectEvent(this)">
+                                    <input type="checkbox" class="event-checkbox" onclick="event.stopPropagation()">
+                                    <div class="event-info">
+                                        <div class="event-name">내상품일괄관리</div>
+                                        <div class="event-date">2025-12-13 ~ 2026-03-31</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Panel - Product List -->
+                    <div class="right-section">
+                        <!-- Results Section -->
+                        <div class="results-card">
+                    <div class="results-header">
+                        <div class="results-title">• 폴더 미선택<span class="results-count">(0)</span> <span class="selected-count"></span></div>
+                        <div class="results-actions">
+                            <button class="btn btn-small">엑셀업로드</button>
+                            <button class="btn btn-small">엑셀다운로드</button>
+                            <button class="btn btn-small" id="btnAddProduct">추가</button>
+                            <button class="btn btn-small" id="btnDeleteProduct">삭제</button>
+                            <button class="btn btn-small btn-save">저장</button>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="product-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40px;"><input type="checkbox" class="checkbox" id="selectAllProducts"></th>
+                                    <th>상품코드</th>
+                                    <th>대카</th>
+                                    <th>중카</th>
+                                    <th>정상이월</th>
+                                    <th>브랜드</th>
+                                    <th>년도</th>
+                                    <th>시존</th>
+                                    <th>자사/입점</th>
+                                    <th>최초소비자가</th>
+                                    <th>판매가</th>
+                                    <th>할인율</th>
+                                    <th>담당자</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- 동적 렌더링 -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- History -->
+                    <div class="history-section">
+                        <div class="history-header">
+                            <div class="results-title">• 히스토리</div>
+                            <div class="history-count" id="historyCount">(0)</div>
+                        </div>
+                        <div class="history-container">
+                            <table class="history-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 80px;">구분</th>
+                                        <th>상품코드</th>
+                                        <th style="width: 120px;">작업자</th>
+                                        <th style="width: 140px;">날짜</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="historyBody">
+                                    <tr>
+                                        <td colspan="4" class="history-empty">내역이 없습니다.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+<script>
+        // Product data for different events (15+ items each)
+        const eventProducts = {
+            '기획전 - 연말': [
+                { code: 'HZHEF5F801M2', normal: '10', brand: 'B01K', year: '2025', season: 'F', yn: 'Y', price: '63,000', sale: '55,200', company: 'LGF' },
+                { code: 'HZHEF5F801E2', normal: '10', brand: 'B01K', year: '2025', season: 'F', yn: 'Y', price: '63,000', sale: '55,200', company: 'LGF' },
+                { code: 'HZHEF5F801CR', normal: '10', brand: 'B01K', year: '2025', season: 'F', yn: 'Y', price: '63,000', sale: '55,200', company: 'LGF' },
+                { code: 'HZHEF5F802M2', normal: '10', brand: 'B01K', year: '2025', season: 'F', yn: 'Y', price: '99,000', sale: '79,200', company: 'LGF' },
+                { code: 'HZHEF5F802G2', normal: '10', brand: 'B01K', year: '2025', season: 'F', yn: 'Y', price: '99,000', sale: '79,200', company: 'LGF' },
+                { code: 'HZHEF5F802E3', normal: '10', brand: 'B01K', year: '2025', season: 'F', yn: 'Y', price: '99,000', sale: '79,200', company: 'LGF' },
+                { code: 'HZSW5F801E2', normal: '10', brand: 'B01K', year: '2025', season: 'F', yn: 'Y', price: '199,000', sale: '159,200', company: 'LGF' },
+                { code: 'HZSW5F801N2', normal: '10', brand: 'B01K', year: '2025', season: 'F', yn: 'Y', price: '199,000', sale: '159,200', company: 'LGF' },
+                { code: 'HZTS5F801N2', normal: '10', brand: 'B01K', year: '2025', season: 'F', yn: 'Y', price: '169,000', sale: '135,200', company: 'LGF' },
+                { code: 'HZTS5F801G2', normal: '10', brand: 'B01K', year: '2025', season: 'F', yn: 'Y', price: '169,000', sale: '135,200', company: 'LGF' },
+                { code: 'HZCO5F801BK', normal: '10', brand: 'B01K', year: '2025', season: 'F', yn: 'Y', price: '459,000', sale: '321,300', company: 'LGF' },
+                { code: 'HZCO5F801CG', normal: '10', brand: 'B01K', year: '2025', season: 'F', yn: 'Y', price: '459,000', sale: '321,300', company: 'LGF' },
+                { code: 'HZCO5F802CG', normal: '10', brand: 'B01K', year: '2025', season: 'F', yn: 'Y', price: '419,000', sale: '293,300', company: 'LGF' },
+                { code: 'HZCO5F802M2', normal: '10', brand: 'B01K', year: '2025', season: 'F', yn: 'Y', price: '419,000', sale: '293,300', company: 'LGF' },
+                { code: 'HZJA5F801W2', normal: '10', brand: 'B01K', year: '2025', season: 'F', yn: 'Y', price: '279,000', sale: '223,200', company: 'LGF' },
+            ],
+            'SS/2026 시간준비': [
+                { code: 'SZAB6S201BK', normal: '20', brand: 'C03M', year: '2026', season: 'S', yn: 'Y', price: '89,000', sale: '71,200', company: 'MNP' },
+                { code: 'SZAB6S201WH', normal: '20', brand: 'C03M', year: '2026', season: 'S', yn: 'Y', price: '89,000', sale: '71,200', company: 'MNP' },
+                { code: 'SZAB6S202GY', normal: '20', brand: 'C03M', year: '2026', season: 'S', yn: 'Y', price: '95,000', sale: '76,000', company: 'MNP' },
+                { code: 'SZAB6S203NV', normal: '20', brand: 'C03M', year: '2026', season: 'S', yn: 'Y', price: '95,000', sale: '76,000', company: 'MNP' },
+                { code: 'SZAB6S204BE', normal: '20', brand: 'C03M', year: '2026', season: 'S', yn: 'Y', price: '98,000', sale: '78,400', company: 'MNP' },
+                { code: 'SZCD6S301RD', normal: '20', brand: 'C03M', year: '2026', season: 'S', yn: 'Y', price: '125,000', sale: '100,000', company: 'MNP' },
+                { code: 'SZCD6S302PK', normal: '20', brand: 'C03M', year: '2026', season: 'S', yn: 'Y', price: '125,000', sale: '100,000', company: 'MNP' },
+                { code: 'SZCD6S303YL', normal: '20', brand: 'C03M', year: '2026', season: 'S', yn: 'Y', price: '135,000', sale: '108,000', company: 'MNP' },
+                { code: 'SZEF6S401GR', normal: '20', brand: 'C03M', year: '2026', season: 'S', yn: 'Y', price: '156,000', sale: '124,800', company: 'MNP' },
+                { code: 'SZEF6S402BL', normal: '20', brand: 'C03M', year: '2026', season: 'S', yn: 'Y', price: '156,000', sale: '124,800', company: 'MNP' },
+                { code: 'SZEF6S403OR', normal: '20', brand: 'C03M', year: '2026', season: 'S', yn: 'Y', price: '168,000', sale: '134,400', company: 'MNP' },
+                { code: 'SZGH6S501IV', normal: '20', brand: 'C03M', year: '2026', season: 'S', yn: 'Y', price: '189,000', sale: '151,200', company: 'MNP' },
+                { code: 'SZGH6S502CH', normal: '20', brand: 'C03M', year: '2026', season: 'S', yn: 'Y', price: '189,000', sale: '151,200', company: 'MNP' },
+                { code: 'SZGH6S503KH', normal: '20', brand: 'C03M', year: '2026', season: 'S', yn: 'Y', price: '199,000', sale: '159,200', company: 'MNP' },
+                { code: 'SZIJ6S601SL', normal: '20', brand: 'C03M', year: '2026', season: 'S', yn: 'Y', price: '215,000', sale: '172,000', company: 'MNP' },
+                { code: 'SZIJ6S602GO', normal: '20', brand: 'C03M', year: '2026', season: 'S', yn: 'Y', price: '215,000', sale: '172,000', company: 'MNP' },
+                { code: 'SZIJ6S603BR', normal: '20', brand: 'C03M', year: '2026', season: 'S', yn: 'Y', price: '225,000', sale: '180,000', company: 'MNP' },
+            ],
+            '크리스마스 기획전': [
+                { code: 'XMAS5F901RD', normal: '15', brand: 'D05X', year: '2025', season: 'F', yn: 'Y', price: '129,000', sale: '103,200', company: 'XYZ' },
+                { code: 'XMAS5F902GR', normal: '15', brand: 'D05X', year: '2025', season: 'F', yn: 'Y', price: '129,000', sale: '103,200', company: 'XYZ' },
+                { code: 'XMAS5F903GL', normal: '15', brand: 'D05X', year: '2025', season: 'F', yn: 'Y', price: '149,000', sale: '119,200', company: 'XYZ' },
+                { code: 'XMAS5F904SL', normal: '15', brand: 'D05X', year: '2025', season: 'F', yn: 'Y', price: '149,000', sale: '119,200', company: 'XYZ' },
+                { code: 'XMAS5F905WH', normal: '15', brand: 'D05X', year: '2025', season: 'F', yn: 'Y', price: '159,000', sale: '127,200', company: 'XYZ' },
+                { code: 'XMAS5F906GD', normal: '15', brand: 'D05X', year: '2025', season: 'F', yn: 'Y', price: '159,000', sale: '127,200', company: 'XYZ' },
+                { code: 'XMAS5F907BK', normal: '15', brand: 'D05X', year: '2025', season: 'F', yn: 'Y', price: '169,000', sale: '135,200', company: 'XYZ' },
+                { code: 'XMAS5F908NV', normal: '15', brand: 'D05X', year: '2025', season: 'F', yn: 'Y', price: '169,000', sale: '135,200', company: 'XYZ' },
+                { code: 'XMAS5F909PL', normal: '15', brand: 'D05X', year: '2025', season: 'F', yn: 'Y', price: '179,000', sale: '143,200', company: 'XYZ' },
+                { code: 'XMAS5F910BR', normal: '15', brand: 'D05X', year: '2025', season: 'F', yn: 'Y', price: '179,000', sale: '143,200', company: 'XYZ' },
+                { code: 'XMAS5F911BE', normal: '15', brand: 'D05X', year: '2025', season: 'F', yn: 'Y', price: '189,000', sale: '151,200', company: 'XYZ' },
+                { code: 'XMAS5F912CH', normal: '15', brand: 'D05X', year: '2025', season: 'F', yn: 'Y', price: '189,000', sale: '151,200', company: 'XYZ' },
+                { code: 'XMAS5F913KH', normal: '15', brand: 'D05X', year: '2025', season: 'F', yn: 'Y', price: '199,000', sale: '159,200', company: 'XYZ' },
+                { code: 'XMAS5F914IV', normal: '15', brand: 'D05X', year: '2025', season: 'F', yn: 'Y', price: '199,000', sale: '159,200', company: 'XYZ' },
+                { code: 'XMAS5F915MN', normal: '15', brand: 'D05X', year: '2025', season: 'F', yn: 'Y', price: '209,000', sale: '167,200', company: 'XYZ' },
+            ],
+            '크리스마스 기획전V0.1': [
+                { code: 'XMAS5F801SL', normal: '12', brand: 'D05X', year: '2025', season: 'F', yn: 'Y', price: '119,000', sale: '95,200', company: 'XYZ' },
+                { code: 'XMAS5F802GD', normal: '12', brand: 'D05X', year: '2025', season: 'F', yn: 'Y', price: '119,000', sale: '95,200', company: 'XYZ' },
+                { code: 'XMAS5F803RD', normal: '12', brand: 'D05X', year: '2025', season: 'F', yn: 'Y', price: '129,000', sale: '103,200', company: 'XYZ' },
+                { code: 'XMAS5F804GR', normal: '12', brand: 'D05X', year: '2025', season: 'F', yn: 'Y', price: '129,000', sale: '103,200', company: 'XYZ' },
+                { code: 'XMAS5F805WH', normal: '12', brand: 'D05X', year: '2025', season: 'F', yn: 'Y', price: '139,000', sale: '111,200', company: 'XYZ' },
+                { code: 'XMAS5F806BK', normal: '12', brand: 'D05X', year: '2025', season: 'F', yn: 'Y', price: '139,000', sale: '111,200', company: 'XYZ' },
+                { code: 'XMAS5F807NV', normal: '12', brand: 'D05X', year: '2025', season: 'F', yn: 'Y', price: '149,000', sale: '119,200', company: 'XYZ' },
+                { code: 'XMAS5F808PK', normal: '12', brand: 'D05X', year: '2025', season: 'F', yn: 'Y', price: '149,000', sale: '119,200', company: 'XYZ' },
+                { code: 'XMAS5F809BE', normal: '12', brand: 'D05X', year: '2025', season: 'F', yn: 'Y', price: '159,000', sale: '127,200', company: 'XYZ' },
+                { code: 'XMAS5F810CH', normal: '12', brand: 'D05X', year: '2025', season: 'F', yn: 'Y', price: '159,000', sale: '127,200', company: 'XYZ' },
+                { code: 'XMAS5F811BR', normal: '12', brand: 'D05X', year: '2025', season: 'F', yn: 'Y', price: '169,000', sale: '135,200', company: 'XYZ' },
+                { code: 'XMAS5F812IV', normal: '12', brand: 'D05X', year: '2025', season: 'F', yn: 'Y', price: '169,000', sale: '135,200', company: 'XYZ' },
+                { code: 'XMAS5F813KH', normal: '12', brand: 'D05X', year: '2025', season: 'F', yn: 'Y', price: '179,000', sale: '143,200', company: 'XYZ' },
+                { code: 'XMAS5F814YL', normal: '12', brand: 'D05X', year: '2025', season: 'F', yn: 'Y', price: '179,000', sale: '143,200', company: 'XYZ' },
+                { code: 'XMAS5F815OR', normal: '12', brand: 'D05X', year: '2025', season: 'F', yn: 'Y', price: '189,000', sale: '151,200', company: 'XYZ' },
+            ],
+            '탑탑 오더': [
+                { code: 'TOPT5F301BK', normal: '25', brand: 'E07T', year: '2025', season: 'F', yn: 'Y', price: '79,000', sale: '63,200', company: 'ABC' },
+                { code: 'TOPT5F302WH', normal: '25', brand: 'E07T', year: '2025', season: 'F', yn: 'Y', price: '79,000', sale: '63,200', company: 'ABC' },
+                { code: 'TOPT5F303BE', normal: '25', brand: 'E07T', year: '2025', season: 'F', yn: 'Y', price: '85,000', sale: '68,000', company: 'ABC' },
+                { code: 'TOPT5F304NV', normal: '25', brand: 'E07T', year: '2025', season: 'F', yn: 'Y', price: '85,000', sale: '68,000', company: 'ABC' },
+                { code: 'TOPT5F305GY', normal: '25', brand: 'E07T', year: '2025', season: 'F', yn: 'Y', price: '89,000', sale: '71,200', company: 'ABC' },
+                { code: 'TOPT5F306RD', normal: '25', brand: 'E07T', year: '2025', season: 'F', yn: 'Y', price: '89,000', sale: '71,200', company: 'ABC' },
+                { code: 'TOPT5F307BR', normal: '25', brand: 'E07T', year: '2025', season: 'F', yn: 'Y', price: '95,000', sale: '76,000', company: 'ABC' },
+                { code: 'TOPT5F308GR', normal: '25', brand: 'E07T', year: '2025', season: 'F', yn: 'Y', price: '95,000', sale: '76,000', company: 'ABC' },
+                { code: 'TOPT5F309PK', normal: '25', brand: 'E07T', year: '2025', season: 'F', yn: 'Y', price: '99,000', sale: '79,200', company: 'ABC' },
+                { code: 'TOPT5F310YL', normal: '25', brand: 'E07T', year: '2025', season: 'F', yn: 'Y', price: '99,000', sale: '79,200', company: 'ABC' },
+                { code: 'TOPT5F311CH', normal: '25', brand: 'E07T', year: '2025', season: 'F', yn: 'Y', price: '105,000', sale: '84,000', company: 'ABC' },
+                { code: 'TOPT5F312IV', normal: '25', brand: 'E07T', year: '2025', season: 'F', yn: 'Y', price: '105,000', sale: '84,000', company: 'ABC' },
+                { code: 'TOPT5F313KH', normal: '25', brand: 'E07T', year: '2025', season: 'F', yn: 'Y', price: '109,000', sale: '87,200', company: 'ABC' },
+                { code: 'TOPT5F314SL', normal: '25', brand: 'E07T', year: '2025', season: 'F', yn: 'Y', price: '109,000', sale: '87,200', company: 'ABC' },
+                { code: 'TOPT5F315MN', normal: '25', brand: 'E07T', year: '2025', season: 'F', yn: 'Y', price: '115,000', sale: '92,000', company: 'ABC' },
+            ],
+            '개인모니터링': [
+                { code: 'MONI5F101A1', normal: '08', brand: 'F02M', year: '2025', season: 'F', yn: 'Y', price: '159,000', sale: '127,200', company: 'DEF' },
+                { code: 'MONI5F102B2', normal: '08', brand: 'F02M', year: '2025', season: 'F', yn: 'Y', price: '159,000', sale: '127,200', company: 'DEF' },
+                { code: 'MONI5F103C3', normal: '08', brand: 'F02M', year: '2025', season: 'F', yn: 'Y', price: '169,000', sale: '135,200', company: 'DEF' },
+                { code: 'MONI5F104D4', normal: '08', brand: 'F02M', year: '2025', season: 'F', yn: 'Y', price: '169,000', sale: '135,200', company: 'DEF' },
+                { code: 'MONI5F105E5', normal: '08', brand: 'F02M', year: '2025', season: 'F', yn: 'Y', price: '179,000', sale: '143,200', company: 'DEF' },
+                { code: 'MONI5F106F6', normal: '08', brand: 'F02M', year: '2025', season: 'F', yn: 'Y', price: '179,000', sale: '143,200', company: 'DEF' },
+                { code: 'MONI5F107G7', normal: '08', brand: 'F02M', year: '2025', season: 'F', yn: 'Y', price: '189,000', sale: '151,200', company: 'DEF' },
+                { code: 'MONI5F108H8', normal: '08', brand: 'F02M', year: '2025', season: 'F', yn: 'Y', price: '189,000', sale: '151,200', company: 'DEF' },
+                { code: 'MONI5F109I9', normal: '08', brand: 'F02M', year: '2025', season: 'F', yn: 'Y', price: '199,000', sale: '159,200', company: 'DEF' },
+                { code: 'MONI5F110J1', normal: '08', brand: 'F02M', year: '2025', season: 'F', yn: 'Y', price: '199,000', sale: '159,200', company: 'DEF' },
+                { code: 'MONI5F111K2', normal: '08', brand: 'F02M', year: '2025', season: 'F', yn: 'Y', price: '209,000', sale: '167,200', company: 'DEF' },
+                { code: 'MONI5F112L3', normal: '08', brand: 'F02M', year: '2025', season: 'F', yn: 'Y', price: '209,000', sale: '167,200', company: 'DEF' },
+                { code: 'MONI5F113M4', normal: '08', brand: 'F02M', year: '2025', season: 'F', yn: 'Y', price: '219,000', sale: '175,200', company: 'DEF' },
+                { code: 'MONI5F114N5', normal: '08', brand: 'F02M', year: '2025', season: 'F', yn: 'Y', price: '219,000', sale: '175,200', company: 'DEF' },
+                { code: 'MONI5F115O6', normal: '08', brand: 'F02M', year: '2025', season: 'F', yn: 'Y', price: '229,000', sale: '183,200', company: 'DEF' },
+            ],
+            '신년상품관리': [
+                { code: 'NEWY6F201RD', normal: '30', brand: 'G08N', year: '2026', season: 'F', yn: 'Y', price: '199,000', sale: '159,200', company: 'GHI' },
+                { code: 'NEWY6F202GD', normal: '30', brand: 'G08N', year: '2026', season: 'F', yn: 'Y', price: '199,000', sale: '159,200', company: 'GHI' },
+                { code: 'NEWY6F203SL', normal: '30', brand: 'G08N', year: '2026', season: 'F', yn: 'Y', price: '219,000', sale: '175,200', company: 'GHI' },
+                { code: 'NEWY6F204WH', normal: '30', brand: 'G08N', year: '2026', season: 'F', yn: 'Y', price: '219,000', sale: '175,200', company: 'GHI' },
+                { code: 'NEWY6F205BK', normal: '30', brand: 'G08N', year: '2026', season: 'F', yn: 'Y', price: '229,000', sale: '183,200', company: 'GHI' },
+                { code: 'NEWY6F206NV', normal: '30', brand: 'G08N', year: '2026', season: 'F', yn: 'Y', price: '229,000', sale: '183,200', company: 'GHI' },
+                { code: 'NEWY6F207GR', normal: '30', brand: 'G08N', year: '2026', season: 'F', yn: 'Y', price: '239,000', sale: '191,200', company: 'GHI' },
+                { code: 'NEWY6F208BE', normal: '30', brand: 'G08N', year: '2026', season: 'F', yn: 'Y', price: '239,000', sale: '191,200', company: 'GHI' },
+                { code: 'NEWY6F209BR', normal: '30', brand: 'G08N', year: '2026', season: 'F', yn: 'Y', price: '249,000', sale: '199,200', company: 'GHI' },
+                { code: 'NEWY6F210CH', normal: '30', brand: 'G08N', year: '2026', season: 'F', yn: 'Y', price: '249,000', sale: '199,200', company: 'GHI' },
+                { code: 'NEWY6F211PK', normal: '30', brand: 'G08N', year: '2026', season: 'F', yn: 'Y', price: '259,000', sale: '207,200', company: 'GHI' },
+                { code: 'NEWY6F212YL', normal: '30', brand: 'G08N', year: '2026', season: 'F', yn: 'Y', price: '259,000', sale: '207,200', company: 'GHI' },
+                { code: 'NEWY6F213IV', normal: '30', brand: 'G08N', year: '2026', season: 'F', yn: 'Y', price: '269,000', sale: '215,200', company: 'GHI' },
+                { code: 'NEWY6F214KH', normal: '30', brand: 'G08N', year: '2026', season: 'F', yn: 'Y', price: '269,000', sale: '215,200', company: 'GHI' },
+                { code: 'NEWY6F215MN', normal: '30', brand: 'G08N', year: '2026', season: 'F', yn: 'Y', price: '279,000', sale: '223,200', company: 'GHI' },
+            ],
+            '내상품일괄관리': [
+                { code: 'BULK5F501A1', normal: '50', brand: 'H09B', year: '2025', season: 'F', yn: 'Y', price: '45,000', sale: '36,000', company: 'JKL' },
+                { code: 'BULK5F502B2', normal: '50', brand: 'H09B', year: '2025', season: 'F', yn: 'Y', price: '45,000', sale: '36,000', company: 'JKL' },
+                { code: 'BULK5F503C3', normal: '50', brand: 'H09B', year: '2025', season: 'F', yn: 'Y', price: '52,000', sale: '41,600', company: 'JKL' },
+                { code: 'BULK5F504D4', normal: '50', brand: 'H09B', year: '2025', season: 'F', yn: 'Y', price: '52,000', sale: '41,600', company: 'JKL' },
+                { code: 'BULK5F505E5', normal: '50', brand: 'H09B', year: '2025', season: 'F', yn: 'Y', price: '58,000', sale: '46,400', company: 'JKL' },
+                { code: 'BULK5F506F6', normal: '50', brand: 'H09B', year: '2025', season: 'F', yn: 'Y', price: '58,000', sale: '46,400', company: 'JKL' },
+                { code: 'BULK5F507G7', normal: '50', brand: 'H09B', year: '2025', season: 'F', yn: 'Y', price: '65,000', sale: '52,000', company: 'JKL' },
+                { code: 'BULK5F508H8', normal: '50', brand: 'H09B', year: '2025', season: 'F', yn: 'Y', price: '65,000', sale: '52,000', company: 'JKL' },
+                { code: 'BULK5F509I9', normal: '50', brand: 'H09B', year: '2025', season: 'F', yn: 'Y', price: '72,000', sale: '57,600', company: 'JKL' },
+                { code: 'BULK5F510J1', normal: '50', brand: 'H09B', year: '2025', season: 'F', yn: 'Y', price: '72,000', sale: '57,600', company: 'JKL' },
+                { code: 'BULK5F511K2', normal: '50', brand: 'H09B', year: '2025', season: 'F', yn: 'Y', price: '79,000', sale: '63,200', company: 'JKL' },
+                { code: 'BULK5F512L3', normal: '50', brand: 'H09B', year: '2025', season: 'F', yn: 'Y', price: '79,000', sale: '63,200', company: 'JKL' },
+                { code: 'BULK5F513M4', normal: '50', brand: 'H09B', year: '2025', season: 'F', yn: 'Y', price: '85,000', sale: '68,000', company: 'JKL' },
+                { code: 'BULK5F514N5', normal: '50', brand: 'H09B', year: '2025', season: 'F', yn: 'Y', price: '85,000', sale: '68,000', company: 'JKL' },
+                { code: 'BULK5F515O6', normal: '50', brand: 'H09B', year: '2025', season: 'F', yn: 'Y', price: '92,000', sale: '73,600', company: 'JKL' },
+            ]
+        };
+
+        
+        // ======= 추가 컬럼/히스토리용 공통 데이터 =======
+        const managers = ['홍길동', '이몽룡', '성춘향'];
+
+        // 데모용 카테고리(대카/중카) 매핑: 실제 데이터에 카테고리 값이 없어서 코드 해시 기반으로 안정적으로 부여합니다.
+        const categoryPairs = [
+            { large: '여성의류', middle: '원피스/스커트' },
+            { large: '여성의류', middle: '상의' },
+            { large: '여성의류', middle: '아우터' },
+            { large: '남성의류', middle: '셔츠' },
+            { large: '남성의류', middle: '상의' },
+            { large: '남성의류', middle: '아우터' },
+        ];
+
+        function hashString(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
+            }
+            return hash;
+        }
+
+        function parseNum(v) {
+            const n = Number(String(v || '').replace(/,/g, ''));
+            return Number.isFinite(n) ? n : NaN;
+        }
+
+        function calcDiscountRate(price, sale) {
+            const p = parseNum(price);
+            const s = parseNum(sale);
+            if (!Number.isFinite(p) || !Number.isFinite(s) || p <= 0) {
+                return '-';
+            }
+            const rate = Math.round((1 - (s / p)) * 100);
+            return `${rate}%`;
+        }
+
+        function enrichProduct(product, idx) {
+            const cat = categoryPairs[hashString(product.code) % categoryPairs.length];
+            product.catL = cat.large;
+            product.catM = cat.middle;
+            product.manager = managers[idx % managers.length];
+            product.discountRate = calcDiscountRate(product.price, product.sale);
+        }
+
+        // ======= 히스토리(등록/삭제) =======
+        const historyLog = [];
+
+        function pad2(n) {
+            return String(n).padStart(2, '0');
+        }
+
+        function formatDate(dt) {
+            return `${dt.getFullYear()}-${pad2(dt.getMonth() + 1)}-${pad2(dt.getDate())} ${pad2(dt.getHours())}:${pad2(dt.getMinutes())}`;
+        }
+
+        function renderHistory() {
+            const body = document.getElementById('historyBody');
+            const countEl = document.getElementById('historyCount');
+            if (!body || !countEl) {
+                return;
+            }
+
+            countEl.textContent = `(${historyLog.length})`;
+
+            if (historyLog.length === 0) {
+                body.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="history-empty">내역이 없습니다.</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            body.innerHTML = '';
+            historyLog.slice(0, 200).forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${item.action}</td>
+                    <td>${item.code}</td>
+                    <td>${item.who}</td>
+                    <td>${item.date}</td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+
+        function addHistory(action, codes) {
+            const list = Array.isArray(codes) ? codes : [codes];
+            const now = formatDate(new Date());
+
+            list.forEach((code, i) => {
+                const who = managers[(historyLog.length + i) % managers.length];
+                historyLog.unshift({
+                    action,
+                    code,
+                    who,
+                    date: now
+                });
+            });
+
+            renderHistory();
+        }
+
+// Update selected count
+        function updateSelectedCount() {
+            const checkboxes = document.querySelectorAll('.product-table tbody input[type="checkbox"]');
+            const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+            const selectedCountEl = document.querySelector('.selected-count');
+            
+            if (checkedCount > 0) {
+                selectedCountEl.textContent = `선택 ${checkedCount}건`;
+                selectedCountEl.style.color = '#0066ff';
+                selectedCountEl.style.fontWeight = '600';
+                selectedCountEl.style.marginLeft = '8px';
+            } else {
+                selectedCountEl.textContent = '';
+            }
+
+            // Update select all checkbox state
+            const selectAllCheckbox = document.getElementById('selectAllProducts');
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = checkboxes.length > 0 && checkedCount === checkboxes.length;
+            }
+        }
+
+        // Update product table
+        function updateProductTable(products) {
+            console.log('updateProductTable called with', products.length, 'products');
+            
+            const tbody = document.querySelector('.product-table tbody');
+            if (!tbody) {
+                console.error('tbody not found!');
+                return;
+            }
+            
+            // Clear existing rows
+            tbody.innerHTML = '';
+            
+            // Create new rows
+            products.forEach((product, idx) => {
+                enrichProduct(product, idx);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="text-center"><input type="checkbox" class="checkbox product-checkbox"></td>
+                    <td><a href="#" class="product-code">${product.code}</a></td>
+                    <td class="text-center">${product.catL}</td>
+                    <td class="text-center">${product.catM}</td>
+                    <td class="text-center">${product.normal}</td>
+                    <td class="text-center">${product.brand}</td>
+                    <td class="text-center">${product.year}</td>
+                    <td class="text-center">${product.season}</td>
+                    <td class="text-center">${product.yn}</td>
+                    <td class="text-right">${product.price}</td>
+                    <td class="text-right">${product.sale}</td>
+                    <td class="text-center">${product.discountRate}</td>
+                    <td class="text-center">${product.manager}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Attach row click handlers
+            tbody.querySelectorAll('tr').forEach(row => {
+                row.addEventListener('click', function(e) {
+                    if (e.target.type !== 'checkbox' && !e.target.classList.contains('product-code')) {
+                        const checkbox = this.querySelector('input[type="checkbox"]');
+                        if (checkbox) {
+                            checkbox.checked = !checkbox.checked;
+                            updateSelectedCount();
+                        }
+                    }
+                });
+            });
+
+            // Attach checkbox change listeners
+            tbody.querySelectorAll('.product-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', updateSelectedCount);
+            });
+
+            // Update count
+            const resultsCountEl = document.querySelector('.results-count');
+            if (resultsCountEl) {
+                resultsCountEl.textContent = `(총 ${products.length}건)`;
+            }
+            
+            // Reset selected count
+            updateSelectedCount();
+            
+            console.log('Table updated successfully');
+        }
+
+        // Select event function - FIXED VERSION
+        function selectEvent(element) {
+            console.log('selectEvent called', element);
+            
+            // Remove active class from all items
+            document.querySelectorAll('.event-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to clicked item
+            element.classList.add('active');
+            
+            // Get event name
+            const eventNameEl = element.querySelector('.event-name');
+            if (!eventNameEl) {
+                console.error('event-name element not found');
+                return;
+            }
+            
+            const eventName = eventNameEl.textContent.trim();
+            console.log('Event name:', eventName);
+            
+            const products = eventProducts[eventName] || [];
+            console.log('Products found:', products.length);
+            
+            // Update the product table
+            updateProductTable(products);
+            
+            // Clear select all checkbox
+            const selectAllCheckbox = document.getElementById('selectAllProducts');
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = false;
+            }
+        }
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM Content Loaded');
+            
+            // Initialize first event
+            const firstEvent = document.querySelector('.event-item.active');
+            if (firstEvent) {
+                const eventName = firstEvent.querySelector('.event-name').textContent.trim();
+                const products = eventProducts[eventName] || [];
+                updateProductTable(products);
+            }
+
+            // Attach event listeners to all event items
+            document.querySelectorAll('.event-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    // Prevent checkbox from triggering event selection
+                    if (e.target.classList.contains('event-checkbox')) {
+                        e.stopPropagation();
+                        return;
+                    }
+                    selectEvent(this);
+                });
+            });
+
+            // Select all checkbox functionality
+            const selectAllCheckbox = document.getElementById('selectAllProducts');
+            if (selectAllCheckbox) {
+                selectAllCheckbox.addEventListener('change', function() {
+                    const checkboxes = document.querySelectorAll('.product-table tbody input[type="checkbox"]');
+                    checkboxes.forEach(cb => cb.checked = this.checked);
+                    updateSelectedCount();
+                });
+            }
+
+            
+            // 우측 상품 추가/삭제 + 히스토리 기록
+            const btnAddProduct = document.getElementById('btnAddProduct');
+            const btnDeleteProduct = document.getElementById('btnDeleteProduct');
+
+            function getActiveEventName() {
+                const el = document.querySelector('.event-item.active .event-name');
+                return el ? el.textContent.trim() : '';
+            }
+
+            function getActiveProducts() {
+                const eventName = getActiveEventName();
+                if (!eventName) {
+                    return { eventName: '', products: [] };
+                }
+                if (!eventProducts[eventName]) {
+                    eventProducts[eventName] = [];
+                }
+                return { eventName, products: eventProducts[eventName] };
+            }
+
+            if (btnAddProduct) {
+                btnAddProduct.addEventListener('click', function() {
+                    const { eventName, products } = getActiveProducts();
+                    if (!eventName) {
+                        alert('선택된 행사가 없습니다.');
+                        return;
+                    }
+
+                    // 데모용 신규 상품 생성 (실서비스에선 상품코드 입력/검색 UI로 대체)
+                    const newCode = `NEWP${Date.now().toString().slice(-8)}`;
+                    const newProduct = {
+                        code: newCode,
+                        normal: '00',
+                        brand: 'NEW',
+                        year: '2026',
+                        season: 'S',
+                        yn: 'Y',
+                        price: '100,000',
+                        sale: '80,000',
+                        company: ''
+                    };
+
+                    products.push(newProduct);
+                    updateProductTable(products);
+
+                    const selectAllCheckbox = document.getElementById('selectAllProducts');
+                    if (selectAllCheckbox) {
+                        selectAllCheckbox.checked = false;
+                    }
+
+                    addHistory('등록', newCode);
+                });
+            }
+
+            if (btnDeleteProduct) {
+                btnDeleteProduct.addEventListener('click', function() {
+                    const { eventName, products } = getActiveProducts();
+                    if (!eventName) {
+                        alert('선택된 행사가 없습니다.');
+                        return;
+                    }
+
+                    const checked = Array.from(document.querySelectorAll('.product-table tbody .product-checkbox:checked'));
+                    if (checked.length === 0) {
+                        alert('삭제할 상품을 선택해주세요.');
+                        return;
+                    }
+
+                    const codesToDelete = checked.map(cb => {
+                        const row = cb.closest('tr');
+                        const codeEl = row ? row.querySelector('.product-code') : null;
+                        return codeEl ? codeEl.textContent.trim() : '';
+                    }).filter(Boolean);
+
+                    if (codesToDelete.length === 0) {
+                        alert('선택된 상품코드를 찾지 못했습니다.');
+                        return;
+                    }
+
+                    const filtered = products.filter(p => !codesToDelete.includes(p.code));
+                    eventProducts[eventName] = filtered;
+
+                    updateProductTable(filtered);
+
+                    const selectAllCheckbox = document.getElementById('selectAllProducts');
+                    if (selectAllCheckbox) {
+                        selectAllCheckbox.checked = false;
+                    }
+
+                    addHistory('삭제', codesToDelete);
+                });
+            }
+
+            // 히스토리 초기 렌더
+            renderHistory();
+
+console.log('Initialization complete');
+        });
+
+        // Toggle menu function
+        function toggleMenu(element) {
+            const section = element.closest('.menu-section');
+            const items = section.querySelector('.menu-items');
+            const arrow = element.querySelector('.arrow');
+            
+            if (items) {
+                const isVisible = items.style.display !== 'none';
+                items.style.display = isVisible ? 'none' : 'block';
+                arrow.textContent = isVisible ? '›' : '▼';
+                element.classList.toggle('expanded');
+            }
+        }
+
+        // Tab switching
+        document.querySelectorAll('.menu-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.menu-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Menu item click
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
