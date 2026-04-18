@@ -2,310 +2,149 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>로또 히스토리 · 번호 만들기</title>
-    <style>
-      * {
-        box-sizing: border-box;
-      }
-      body {
-        margin: 0;
-        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
-        background: #111;
-        color: #eee;
-        line-height: 1.45;
-        padding: 1rem;
-        max-width: 720px;
-        margin-inline: auto;
-      }
-      h1 {
-        font-size: 1.25rem;
-        margin: 0 0 0.5rem;
-      }
-      .hint {
-        font-size: 0.8rem;
-        color: #888;
-        margin-bottom: 1rem;
-      }
-      .row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.35rem;
-        align-items: center;
-      }
-      .ball {
-        display: inline-flex;
-        width: 2rem;
-        height: 2rem;
-        border-radius: 50%;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.8rem;
-        font-weight: 700;
-        background: #fff;
-        color: #111;
-      }
-      .ball.b {
-        background: #f5a623;
-        color: #111;
-      }
-      .ball.plus {
-        background: transparent;
-        color: #666;
-        width: 1rem;
-        font-size: 0.7rem;
-      }
-      ul {
-        list-style: none;
-        padding: 0;
-        margin: 0 0 1rem;
-        max-height: 45vh;
-        overflow: auto;
-        border: 1px solid #333;
-        border-radius: 8px;
-      }
-      li button {
-        width: 100%;
-        text-align: left;
-        padding: 0.65rem 0.75rem;
-        border: none;
-        border-bottom: 1px solid #2a2a2a;
-        background: #1a1a1a;
-        color: inherit;
-        font: inherit;
-        cursor: pointer;
-      }
-      li button:hover {
-        background: #252525;
-      }
-      li button.on {
-        background: #2a3a2a;
-      }
-      li:last-child button {
-        border-bottom: none;
-      }
-      .detail {
-        border: 1px solid #333;
-        border-radius: 8px;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        background: #1a1a1a;
-      }
-      .detail h2 {
-        font-size: 1rem;
-        margin: 0 0 0.5rem;
-      }
-      .actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-top: 0.75rem;
-      }
-      button.gen {
-        font: inherit;
-        font-weight: 600;
-        padding: 0.5rem 0.85rem;
-        border-radius: 6px;
-        border: none;
-        background: #3d7cff;
-        color: #fff;
-        cursor: pointer;
-      }
-      button.gen.alt {
-        background: #333;
-        color: #eee;
-      }
-      .out {
-        margin-top: 0.75rem;
-        font-size: 0.85rem;
-        color: #aaa;
-      }
-      .game {
-        margin-top: 0.5rem;
-      }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>야디지북</title>
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <h1>로또 6/45</h1>
-    <p class="hint">
-      아래 목록은 <strong>예시 히스토리</strong>입니다. 회차를 누르면 당첨 번호가 보이고, 자동으로 한 게임이 생성됩니다. 실제 당첨은
-      <a href="https://www.dhlottery.co.kr/" style="color: #8af">동행복권</a>에서 확인하세요.
-    </p>
+    <div class="app">
+      <!-- ① 골프장 검색 -->
+      <section id="screen-1" class="screen active">
+        <div class="topbar">
+          <button type="button" class="btn-icon" id="s1-menu" aria-label="메뉴">☰</button>
+          <div style="flex: 1"></div>
+          <button type="button" class="btn-outline" id="s1-record">🏌 기록</button>
+        </div>
+        <div class="s1-brand">
+          <span class="logo" aria-hidden="true">⛳</span>
+          <div>
+            <h2>야디지북</h2>
+            <p>골프장 코스 정보 및 야디지 데이터</p>
+          </div>
+        </div>
+        <div class="search-wrap">
+          <input type="search" id="search-input" placeholder="골프장명 또는 지역 검색…" autocomplete="off" />
+        </div>
+        <div class="chips">
+          <button type="button" class="chip fav" data-filter="fav">★ 즐겨찾기</button>
+          <button type="button" class="chip on" data-filter="전체">전체</button>
+          <button type="button" class="chip" data-filter="수도권">수도권</button>
+          <button type="button" class="chip" data-filter="충청">충청</button>
+          <button type="button" class="chip" data-filter="영남">영남</button>
+          <button type="button" class="chip" data-filter="호남">호남</button>
+        </div>
+        <p class="count-line" id="result-count">총 0개 골프장</p>
+        <div class="course-list" id="course-list"></div>
+      </section>
 
-    <ul id="list" aria-label="회차 목록"></ul>
+      <!-- ② 클럽 소개 + 홀 맵 썸네일 -->
+      <section id="screen-2" class="screen">
+        <div class="topbar">
+          <button type="button" class="btn-icon" id="s2-back" aria-label="뒤로">‹</button>
+          <h1 id="s2-title">클럽 상세</h1>
+          <button type="button" class="btn-outline" id="s2-record">🏌 기록</button>
+        </div>
+        <div class="s2-body">
+          <h2 class="club-title" id="club-name">—</h2>
+          <div class="tag-row">
+            <span class="tag green" id="tab-badge">실크코스</span>
+            <span class="tag yellow" id="club-diff">난이도 중</span>
+          </div>
+          <p class="contact" id="club-contact">—</p>
+          <div class="tabs" id="tabs-nine"></div>
+          <div class="desc-box" id="club-desc">—</div>
+          <div class="hole-grid-title">홀별 코스 이미지</div>
+          <div class="hole-grid" id="hole-grid"></div>
+        </div>
+      </section>
 
-    <div class="detail" id="detail">
-      <h2 id="title">회차를 선택하세요</h2>
-      <div class="row" id="win"></div>
-      <div class="actions">
-        <button type="button" class="gen" id="b1">번호 1게임 더 만들기</button>
-        <button type="button" class="gen alt" id="b5">5게임 만들기</button>
-      </div>
-      <div class="out" id="out"></div>
+      <!-- ③ 라운드 설정 · 코스별 기록 진입 -->
+      <section id="screen-3" class="screen">
+        <div class="topbar s3-topbar">
+          <button type="button" class="btn-icon" id="s3-back" aria-label="뒤로">‹</button>
+          <div style="text-align: center">
+            <h1 style="margin: 0">새 라운드</h1>
+            <p class="sub" style="margin: 0">코스 설정</p>
+          </div>
+          <div class="progress-dots" aria-hidden="true">
+            <span class="on"></span><span class="on"></span><span></span>
+          </div>
+        </div>
+        <div class="s3-body">
+          <div class="date-pill" id="round-date">—</div>
+          <div class="section-label">골프장 선택</div>
+          <div class="course-pick-list" id="round-course-list"></div>
+          <div class="section-label">코스 구성 선택</div>
+          <div class="nine-grid">
+            <div class="nine-col">
+              <label>전반 (1~9홀)</label>
+              <div class="nine-btns">
+                <button type="button" class="nine-front" data-nine="silk">실크코스</button>
+                <button type="button" class="nine-front" data-nine="lake">레이크코스</button>
+                <button type="button" class="nine-front" data-nine="valley">밸리코스</button>
+              </div>
+            </div>
+            <div class="nine-col">
+              <label>후반 (10~18홀)</label>
+              <div class="nine-btns">
+                <button type="button" class="nine-back" data-nine="silk">실크코스</button>
+                <button type="button" class="nine-back" data-nine="lake">레이크코스</button>
+                <button type="button" class="nine-back" data-nine="valley">밸리코스</button>
+              </div>
+            </div>
+          </div>
+          <div class="summary-banner" id="round-summary">—</div>
+          <div class="section-label">티 선택</div>
+          <div class="tee-row">
+            <button type="button" class="tee-pick" data-tee="black">블랙</button>
+            <button type="button" class="tee-pick" data-tee="blue">블루</button>
+            <button type="button" class="tee-pick on" data-tee="white">화이트</button>
+            <button type="button" class="tee-pick" data-tee="red">레드</button>
+          </div>
+          <button type="button" class="btn-primary-full" id="btn-start-round">스코어 입력 시작 →</button>
+        </div>
+      </section>
+
+      <!-- ④ 맵 위 타수 기록 -->
+      <section id="screen-4" class="screen screen-4">
+        <div class="topbar s3-topbar">
+          <button type="button" class="btn-icon" id="s4-close" aria-label="종료">✕</button>
+          <h1 id="s4-hole-title" style="margin: 0; text-align: center; font-size: 0.95rem">1번 홀 Par 5</h1>
+          <span style="font-size: 0.72rem; color: #888; text-align: right">종료</span>
+        </div>
+        <div class="s4-map-wrap">
+          <div class="s4-map"></div>
+          <div id="rings-host"></div>
+          <div class="tees-row" aria-hidden="true">
+            <span class="tee-dot red"></span>
+            <span class="tee-dot yellow"></span>
+            <span class="tee-dot white"></span>
+            <span class="tee-dot blue"></span>
+            <span class="tee-dot black"></span>
+          </div>
+          <div class="pin-flag" aria-hidden="true"></div>
+          <div class="stroke-badge" id="stroke-count">현재 0타</div>
+          <div class="s4-float">
+            <div class="course-dd">
+              <div class="big" id="s4-course-line">—</div>
+              <div id="s4-hole-line">실크 1홀 ▼</div>
+            </div>
+            <div class="dist-box">
+              <div>보정거리 <span class="big-r" id="d-adj">—</span></div>
+              <div>수평거리 <span style="color: #dc2626; font-weight: 700" id="d-horiz">—</span></div>
+              <div>높낮이 <span style="color: #dc2626; font-weight: 700" id="d-elev">—</span></div>
+              <div>PAR <strong id="d-par">—</strong></div>
+            </div>
+          </div>
+          <div class="shots-layer" id="shots-layer"></div>
+        </div>
+        <div class="s4-bottom">
+          <button type="button" id="btn-undo">↺ 되돌리기</button>
+          <button type="button" class="hole-in" id="btn-hole-in">⛳ 홀인</button>
+          <button type="button" id="btn-reset">⟳ 초기화</button>
+        </div>
+      </section>
     </div>
-
-    <script>
-      (function () {
-        function rnd32(s) {
-          return function () {
-            s |= 0;
-            s = (s + 0x6d2b79f5) | 0;
-            var t = Math.imul(s ^ (s >>> 15), 1 | s);
-            t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-            return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-          };
-        }
-        function pick6(r) {
-          var p = [],
-            i,
-            j,
-            k,
-            a = [];
-          for (i = 1; i <= 45; i++) p.push(i);
-          for (k = 0; k < 6; k++) {
-            j = (r() * p.length) | 0;
-            a.push(p.splice(j, 1)[0]);
-          }
-          a.sort(function (x, y) {
-            return x - y;
-          });
-          var b = [];
-          for (i = 1; i <= 45; i++) if (a.indexOf(i) < 0) b.push(i);
-          return { n: a, bonus: b[(r() * b.length) | 0] };
-        }
-        function prevDay(d) {
-          var w = d.getUTCDay();
-          if (w === 6) return new Date(d - 3 * 864e5);
-          if (w === 3) return new Date(d - 4 * 864e5);
-          return new Date(d - 864e5);
-        }
-        function fmt(d) {
-          return (
-            d.getUTCFullYear() +
-            "-" +
-            String(d.getUTCMonth() + 1).padStart(2, "0") +
-            "-" +
-            String(d.getUTCDate()).padStart(2, "0")
-          );
-        }
-        function build(N) {
-          var rows = [],
-            draw = 1000 + N,
-            d = Date.UTC(2026, 3, 8),
-            r,
-            t,
-            i;
-          for (i = 0; i < N; i++) {
-            r = rnd32((draw * 7919 + i) >>> 0);
-            t = pick6(r);
-            rows.push({ draw: draw, date: fmt(new Date(d)), numbers: t.n, bonus: t.bonus });
-            draw--;
-            d = +prevDay(new Date(d));
-          }
-          return rows.sort(function (a, b) {
-            return b.date.localeCompare(a.date) || b.draw - a.draw;
-          });
-        }
-
-        var history = build(48);
-        var listEl = document.getElementById("list");
-        var titleEl = document.getElementById("title");
-        var winEl = document.getElementById("win");
-        var outEl = document.getElementById("out");
-        var cur = history[0];
-
-        function balls(nums, bonus) {
-          var h = "";
-          nums.forEach(function (n) {
-            h += '<span class="ball">' + n + "</span>";
-          });
-          h += '<span class="ball plus">+</span><span class="ball b">' + bonus + "</span>";
-          return h;
-        }
-        function cryptoR() {
-          var u = new Uint32Array(1);
-          crypto.getRandomValues(u);
-          return u[0] / 4294967296;
-        }
-        function oneGame() {
-          var r =
-            typeof crypto !== "undefined" && crypto.getRandomValues
-              ? cryptoR
-              : rnd32((Date.now() ^ (Math.random() * 1e9)) >>> 0);
-          var p = [],
-            a = [],
-            i,
-            j,
-            k;
-          for (i = 1; i <= 45; i++) p.push(i);
-          for (k = 0; k < 6; k++) {
-            j = (r() * p.length) | 0;
-            a.push(p.splice(j, 1)[0]);
-          }
-          a.sort(function (x, y) {
-            return x - y;
-          });
-          return a;
-        }
-        function showGames(arr) {
-          outEl.innerHTML = "";
-          var lab = document.createElement("div");
-          lab.innerHTML = "<strong>만든 번호</strong>";
-          outEl.appendChild(lab);
-          arr.forEach(function (g) {
-            var row = document.createElement("div");
-            row.className = "game row";
-            g.forEach(function (n) {
-              var s = document.createElement("span");
-              s.className = "ball";
-              s.textContent = String(n);
-              row.appendChild(s);
-            });
-            outEl.appendChild(row);
-          });
-        }
-        function renderDetail() {
-          if (!cur) return;
-          titleEl.textContent = cur.draw + "회 · " + cur.date;
-          winEl.innerHTML = balls(cur.numbers, cur.bonus);
-        }
-        function gen(n) {
-          var g = [],
-            i;
-          for (i = 0; i < n; i++) g.push(oneGame());
-          showGames(g);
-        }
-        function select(h) {
-          cur = h;
-          document.querySelectorAll("#list button").forEach(function (b) {
-            b.classList.toggle("on", b.dataset.d == h.draw);
-          });
-          renderDetail();
-          gen(1);
-        }
-
-        history.forEach(function (h) {
-          var li = document.createElement("li");
-          var b = document.createElement("button");
-          b.type = "button";
-          b.dataset.d = h.draw;
-          b.textContent = h.date + " · " + h.draw + "회";
-          b.addEventListener("click", function () {
-            select(h);
-          });
-          li.appendChild(b);
-          listEl.appendChild(li);
-        });
-
-        document.getElementById("b1").addEventListener("click", function () {
-          if (cur) gen(1);
-        });
-        document.getElementById("b5").addEventListener("click", function () {
-          if (cur) gen(5);
-        });
-
-        if (cur) select(cur);
-      })();
-    </script>
+    <script src="app.js"></script>
   </body>
 </html>
