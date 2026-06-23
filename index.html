@@ -1,150 +1,574 @@
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>야디지북</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div class="app">
-      <!-- ① 골프장 검색 -->
-      <section id="screen-1" class="screen active">
-        <div class="topbar">
-          <button type="button" class="btn-icon" id="s1-menu" aria-label="메뉴">☰</button>
-          <div style="flex: 1"></div>
-          <button type="button" class="btn-outline" id="s1-record">🏌 기록</button>
-        </div>
-        <div class="s1-brand">
-          <span class="logo" aria-hidden="true">⛳</span>
-          <div>
-            <h2>야디지북</h2>
-            <p>골프장 코스 정보 및 야디지 데이터</p>
-          </div>
-        </div>
-        <div class="search-wrap">
-          <input type="search" id="search-input" placeholder="골프장명 또는 지역 검색…" autocomplete="off" />
-        </div>
-        <div class="chips">
-          <button type="button" class="chip fav" data-filter="fav">★ 즐겨찾기</button>
-          <button type="button" class="chip on" data-filter="전체">전체</button>
-          <button type="button" class="chip" data-filter="수도권">수도권</button>
-          <button type="button" class="chip" data-filter="충청">충청</button>
-          <button type="button" class="chip" data-filter="영남">영남</button>
-          <button type="button" class="chip" data-filter="호남">호남</button>
-        </div>
-        <p class="count-line" id="result-count">총 0개 골프장</p>
-        <div class="course-list" id="course-list"></div>
-      </section>
+<head>
+<meta charset="UTF-8">
+<title>GNB 신호 체계 정책 — 닷 · 위치 · 컬러</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;700&family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#121212;
+    --paper:#F6F3EC;
+    --paper-deep:#EDE8DA;
+    --gold:#B8923A;
+    --gold-soft:#D9C896;
+    --line:#D8D1BD;
+    --grey:#6E6A5E;
+    --dot:#C23B30;
+    --dot-soft:#E2A39C;
+    --pos:#3D5A80;
+    --pos-soft:#A9C0D9;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Pretendard','Noto Sans KR',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:960px;margin:0 auto;padding:0 28px 100px;}
 
-      <!-- ② 클럽 소개 + 홀 맵 썸네일 -->
-      <section id="screen-2" class="screen">
-        <div class="topbar">
-          <button type="button" class="btn-icon" id="s2-back" aria-label="뒤로">‹</button>
-          <h1 id="s2-title">클럽 상세</h1>
-          <button type="button" class="btn-outline" id="s2-record">🏌 기록</button>
-        </div>
-        <div class="s2-body">
-          <h2 class="club-title" id="club-name">—</h2>
-          <div class="tag-row">
-            <span class="tag green" id="tab-badge">실크코스</span>
-            <span class="tag yellow" id="club-diff">난이도 중</span>
-          </div>
-          <p class="contact" id="club-contact">—</p>
-          <div class="tabs" id="tabs-nine"></div>
-          <div class="desc-box" id="club-desc">—</div>
-          <div class="hole-grid-title">홀별 코스 이미지</div>
-          <div class="hole-grid" id="hole-grid"></div>
-        </div>
-      </section>
+  /* ---------- HERO ---------- */
+  .hero{
+    background:var(--ink);
+    color:var(--paper);
+    padding:64px 0 56px;
+    margin-bottom:64px;
+  }
+  .hero-inner{max-width:960px;margin:0 auto;padding:0 28px;}
+  .eyebrow{
+    font-size:12px;
+    letter-spacing:.22em;
+    color:var(--gold-soft);
+    text-transform:uppercase;
+    margin-bottom:18px;
+    font-weight:600;
+  }
+  .hero h1{
+    font-family:'Noto Serif KR',serif;
+    font-weight:700;
+    font-size:36px;
+    line-height:1.34;
+    margin:0 0 18px;
+    letter-spacing:-0.01em;
+  }
+  .hero h1 em{
+    font-style:normal;
+    color:var(--gold);
+    border-bottom:2px solid var(--gold);
+    padding-bottom:2px;
+  }
+  .hero p{
+    font-size:15.5px;
+    line-height:1.75;
+    color:#C9C6BC;
+    max-width:620px;
+    margin:0 0 32px;
+  }
 
-      <!-- ③ 라운드 설정 · 코스별 기록 진입 -->
-      <section id="screen-3" class="screen">
-        <div class="topbar s3-topbar">
-          <button type="button" class="btn-icon" id="s3-back" aria-label="뒤로">‹</button>
-          <div style="text-align: center">
-            <h1 style="margin: 0">새 라운드</h1>
-            <p class="sub" style="margin: 0">코스 설정</p>
-          </div>
-          <div class="progress-dots" aria-hidden="true">
-            <span class="on"></span><span class="on"></span><span></span>
-          </div>
-        </div>
-        <div class="s3-body">
-          <div class="date-pill" id="round-date">—</div>
-          <div class="section-label">골프장 선택</div>
-          <div class="course-pick-list" id="round-course-list"></div>
-          <div class="section-label">코스 구성 선택</div>
-          <div class="nine-grid">
-            <div class="nine-col">
-              <label>전반 (1~9홀)</label>
-              <div class="nine-btns">
-                <button type="button" class="nine-front" data-nine="silk">실크코스</button>
-                <button type="button" class="nine-front" data-nine="lake">레이크코스</button>
-                <button type="button" class="nine-front" data-nine="valley">밸리코스</button>
-              </div>
-            </div>
-            <div class="nine-col">
-              <label>후반 (10~18홀)</label>
-              <div class="nine-btns">
-                <button type="button" class="nine-back" data-nine="silk">실크코스</button>
-                <button type="button" class="nine-back" data-nine="lake">레이크코스</button>
-                <button type="button" class="nine-back" data-nine="valley">밸리코스</button>
-              </div>
-            </div>
-          </div>
-          <div class="summary-banner" id="round-summary">—</div>
-          <div class="section-label">티 선택</div>
-          <div class="tee-row">
-            <button type="button" class="tee-pick" data-tee="black">블랙</button>
-            <button type="button" class="tee-pick" data-tee="blue">블루</button>
-            <button type="button" class="tee-pick on" data-tee="white">화이트</button>
-            <button type="button" class="tee-pick" data-tee="red">레드</button>
-          </div>
-          <button type="button" class="btn-primary-full" id="btn-start-round">스코어 입력 시작 →</button>
-        </div>
-      </section>
+  /* GNB mock */
+  .gnb-row{
+    background:#1B1B1B;
+    border:1px solid #333;
+    border-radius:10px;
+    padding:20px 22px;
+  }
+  .gnb-row .label{
+    font-size:11px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    margin-bottom:14px;
+    font-weight:600;
+    color:var(--gold-soft);
+  }
+  .tabs{display:flex;gap:24px;font-size:14.5px;color:#EAE6DA;flex-wrap:wrap;align-items:flex-start;}
+  .tab{position:relative;padding-right:6px;font-weight:500;}
+  .tab .dot{
+    position:absolute;
+    top:-3px;right:-8px;
+    width:7px;height:7px;
+    border-radius:50%;
+    background:var(--dot);
+  }
+  .tab.gold{color:var(--gold);font-weight:700;}
+  .tab.pinned{
+    background:#262626;
+    border:1px solid var(--pos-soft);
+    padding:4px 10px;
+    border-radius:6px;
+  }
+  .tab.muted{color:#6E6A5E;}
+  .tab .tagmini{
+    display:block;
+    font-size:10px;
+    color:#7C786A;
+    font-weight:400;
+    margin-top:6px;
+    letter-spacing:0;
+  }
 
-      <!-- ④ 맵 위 타수 기록 -->
-      <section id="screen-4" class="screen screen-4">
-        <div class="topbar s3-topbar">
-          <button type="button" class="btn-icon" id="s4-close" aria-label="종료">✕</button>
-          <h1 id="s4-hole-title" style="margin: 0; text-align: center; font-size: 0.95rem">1번 홀 Par 5</h1>
-          <span style="font-size: 0.72rem; color: #888; text-align: right">종료</span>
-        </div>
-        <div class="s4-map-wrap">
-          <div class="s4-map"></div>
-          <div id="rings-host"></div>
-          <div class="tees-row" aria-hidden="true">
-            <span class="tee-dot red"></span>
-            <span class="tee-dot yellow"></span>
-            <span class="tee-dot white"></span>
-            <span class="tee-dot blue"></span>
-            <span class="tee-dot black"></span>
-          </div>
-          <div class="pin-flag" aria-hidden="true"></div>
-          <div class="stroke-badge" id="stroke-count">현재 0타</div>
-          <div class="s4-float">
-            <div class="course-dd">
-              <div class="big" id="s4-course-line">—</div>
-              <div id="s4-hole-line">실크 1홀 ▼</div>
-            </div>
-            <div class="dist-box">
-              <div>보정거리 <span class="big-r" id="d-adj">—</span></div>
-              <div>수평거리 <span style="color: #dc2626; font-weight: 700" id="d-horiz">—</span></div>
-              <div>높낮이 <span style="color: #dc2626; font-weight: 700" id="d-elev">—</span></div>
-              <div>PAR <strong id="d-par">—</strong></div>
-            </div>
-          </div>
-          <div class="shots-layer" id="shots-layer"></div>
-        </div>
-        <div class="s4-bottom">
-          <button type="button" id="btn-undo">↺ 되돌리기</button>
-          <button type="button" class="hole-in" id="btn-hole-in">⛳ 홀인</button>
-          <button type="button" id="btn-reset">⟳ 초기화</button>
-        </div>
-      </section>
+  /* ---------- SECTION GENERIC ---------- */
+  section{margin-bottom:60px;}
+  .kicker{
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+    margin-bottom:24px;
+  }
+  .kicker .num{
+    font-family:'Noto Serif KR',serif;
+    font-size:14px;
+    color:var(--gold);
+    font-weight:700;
+    border:1px solid var(--gold);
+    border-radius:50%;
+    width:26px;height:26px;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  h2{
+    font-family:'Noto Serif KR',serif;
+    font-size:23px;
+    font-weight:700;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .lede{
+    color:var(--grey);
+    font-size:14.5px;
+    line-height:1.8;
+    margin:0 0 26px;
+    padding-left:40px;
+  }
+
+  /* problem grid */
+  .problem-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:14px;
+    padding-left:40px;
+  }
+  .problem-card{
+    background:var(--paper-deep);
+    border-left:3px solid var(--dot);
+    padding:16px 18px;
+    border-radius:2px;
+  }
+  .problem-card .t{font-weight:700;font-size:14.5px;margin-bottom:6px;}
+  .problem-card .d{font-size:13.5px;color:var(--grey);line-height:1.6;}
+
+  /* signal system cards - 3 types */
+  .signal-trio{
+    padding-left:40px;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+  }
+  .signal-card{
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:20px 18px 22px;
+    background:#FCFBF7;
+  }
+  .signal-card .sv{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:14.5px;
+    font-weight:700;
+    margin-bottom:10px;
+  }
+  .signal-card .sv .swatch-dot{width:9px;height:9px;border-radius:50%;background:var(--dot);flex-shrink:0;}
+  .signal-card .sv .swatch-pos{width:14px;height:9px;border-radius:2px;background:var(--pos);flex-shrink:0;}
+  .signal-card .sv .swatch-gold{font-family:'Noto Serif KR',serif;color:var(--gold);font-weight:700;}
+  .signal-card .strength{
+    display:inline-block;
+    font-size:10.5px;
+    font-weight:600;
+    padding:2px 8px;
+    border-radius:12px;
+    margin-bottom:12px;
+  }
+  .signal-card .strength.s1{background:var(--ink);color:var(--gold-soft);}
+  .signal-card .strength.s2{background:var(--pos-soft);color:var(--ink);}
+  .signal-card .strength.s3{background:var(--paper-deep);color:var(--grey);border:1px solid var(--line);}
+  .signal-card p{font-size:13px;color:var(--grey);line-height:1.7;margin:0 0 10px;}
+  .signal-card ul{margin:0;padding-left:16px;font-size:12.5px;color:var(--ink);line-height:1.75;}
+
+  /* principle cards */
+  .principles{
+    padding-left:40px;
+    display:flex;
+    flex-direction:column;
+    gap:0;
+    border-top:1px solid var(--line);
+  }
+  .principle{
+    display:grid;
+    grid-template-columns:64px 1fr;
+    gap:20px;
+    padding:24px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .principle .pn{
+    font-family:'Noto Serif KR',serif;
+    font-size:34px;
+    color:var(--gold-soft);
+    font-weight:700;
+    line-height:1;
+  }
+  .principle h3{
+    font-size:16.5px;
+    margin:0 0 8px;
+    font-weight:700;
+  }
+  .principle p{
+    margin:0;
+    font-size:14px;
+    color:var(--grey);
+    line-height:1.75;
+  }
+  .principle .tag{
+    display:inline-block;
+    margin-top:10px;
+    font-size:11.5px;
+    background:var(--ink);
+    color:var(--gold-soft);
+    padding:4px 10px;
+    border-radius:20px;
+    letter-spacing:.03em;
+  }
+
+  /* tables */
+  .table-wrap{padding-left:40px;overflow-x:auto;}
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13.5px;
+    min-width:620px;
+  }
+  th{
+    text-align:left;
+    font-weight:600;
+    font-size:11.5px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--grey);
+    border-bottom:1px solid var(--ink);
+    padding:0 12px 10px 0;
+  }
+  td{
+    padding:14px 12px 14px 0;
+    border-bottom:1px solid var(--line);
+    vertical-align:top;
+    line-height:1.6;
+  }
+  tr:last-child td{border-bottom:none;}
+  td.hi{font-weight:700;}
+  .badge{
+    display:inline-block;
+    font-size:11px;
+    font-weight:700;
+    padding:3px 9px;
+    border-radius:20px;
+    white-space:nowrap;
+  }
+  .badge.p1{background:var(--ink);color:var(--gold-soft);}
+  .badge.p2{background:var(--gold-soft);color:var(--ink);}
+  .badge.p3{background:var(--paper-deep);color:var(--grey);border:1px solid var(--line);}
+  .sig{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;white-space:nowrap;flex-wrap:wrap;}
+  .sig .d{width:7px;height:7px;border-radius:50%;background:var(--dot);display:inline-block;}
+  .sig .p{width:12px;height:7px;border-radius:2px;background:var(--pos);display:inline-block;}
+  .sig .c{color:var(--gold);font-weight:700;}
+  .sig .plus{color:var(--grey);font-weight:400;}
+
+  /* process flow */
+  .flow{
+    padding-left:40px;
+  }
+  .flow-row{
+    display:flex;
+    flex-wrap:wrap;
+    counter-reset:step;
+    margin-bottom:6px;
+  }
+  .step{
+    flex:1;
+    min-width:160px;
+    position:relative;
+    padding:18px 16px 18px 0;
+  }
+  .step:not(:last-child)::after{
+    content:'→';
+    position:absolute;
+    right:-2px;
+    top:22px;
+    color:var(--gold);
+    font-size:16px;
+  }
+  .step .sn{
+    font-size:11px;
+    color:var(--gold);
+    font-weight:700;
+    letter-spacing:.08em;
+    margin-bottom:6px;
+  }
+  .step .st{font-size:13.5px;font-weight:600;line-height:1.5;}
+  .branch-note{
+    font-size:12.5px;
+    color:var(--grey);
+    background:var(--paper-deep);
+    border-radius:6px;
+    padding:12px 16px;
+    margin-top:8px;
+    line-height:1.7;
+  }
+  .branch-note b{color:var(--ink);}
+  .branch-note + .branch-note{margin-top:10px;}
+
+  /* summary footer */
+  .summary{
+    background:var(--ink);
+    color:var(--paper);
+    border-radius:6px;
+    padding:36px 40px;
+    margin-top:8px;
+  }
+  .summary h3{
+    font-family:'Noto Serif KR',serif;
+    font-size:18px;
+    color:var(--gold-soft);
+    margin:0 0 18px;
+  }
+  .summary ol{
+    margin:0;
+    padding-left:20px;
+    font-size:14px;
+    line-height:1.9;
+    color:#DAD6C8;
+  }
+  .summary ol li b{color:var(--paper);}
+
+  .foot-note{
+    padding-left:40px;
+    margin-top:14px;
+    font-size:12px;
+    color:var(--grey);
+  }
+
+  @media (max-width:760px){
+    .signal-trio{grid-template-columns:1fr;}
+  }
+  @media (max-width:640px){
+    .hero h1{font-size:27px;}
+    .problem-grid{grid-template-columns:1fr;}
+    .principle{grid-template-columns:40px 1fr;}
+    .principle .pn{font-size:24px;}
+    .lede,.problem-grid,.principles,.table-wrap,.flow,.signal-trio{padding-left:0;}
+    table{font-size:12.5px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">LFmall · UX Policy Memo v3</div>
+    <h1>닷은 존재를,<br>위치는 순서를,<br><em>컬러는 톤</em>을 말한다</h1>
+    <p>신호를 세 종류로 나눠 강도와 역할을 명확히 한다. 닷은 최대 2개, 닷+컬러 동시 적용은 신규 서비스 전용, 소멸 방식은 서비스/기획전 유형에 따라 다르게 운영한다.</p>
+
+    <div class="gnb-row">
+      <div class="label">신호 조합 예시</div>
+      <div class="tabs">
+        <span class="tab gold">헤지스 시즌오프<span class="dot"></span><span class="tagmini">신규 서비스 — 닷+컬러</span></span>
+        <span class="tab pinned">뷰티특가<span class="dot"></span><span class="tagmini">대형 기획전 — 닷+위치</span></span>
+        <span class="tab gold">베스트<span class="tagmini">소규모 특가 — 컬러만</span></span>
+        <span class="tab muted">여성<span class="tagmini">신호 없음</span></span>
+      </div>
     </div>
-    <script src="app.js"></script>
-  </body>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <section>
+    <div class="kicker"><span class="num">1</span><h2>신호 재정의 — 3종 분리</h2></div>
+    <p class="lede">레드닷 하나로는 “신규 서비스”와 “단순 특가”를 구분할 수 없었다. 닷 외에 위치(메뉴 순서 이동/고정), 컬러(메뉴명 색상 변경)까지 더해 강도가 다른 3종 신호 체계로 운영한다.</p>
+    <div class="signal-trio">
+      <div class="signal-card">
+        <div class="strength s1">강신호</div>
+        <div class="sv"><span class="swatch-dot"></span>1. 닷</div>
+        <p>메뉴 자체에 새 소식이 생겼다는 신호. 가장 강하고 가장 희소해야 한다.</p>
+        <ul>
+          <li>동시 최대 2개</li>
+          <li>날짜/기간 기반 자동 소멸</li>
+        </ul>
+      </div>
+      <div class="signal-card">
+        <div class="strength s2">중신호</div>
+        <div class="sv"><span class="swatch-pos"></span>2. 위치</div>
+        <p>메뉴를 GNB 앞쪽으로 임시 이동·고정해 노출 순서로 주목도를 올리는 신호.</p>
+        <ul>
+          <li>동시 최대 1개 (탐색 동선 보호)</li>
+          <li>기획전 종료 시 원래 위치로 복귀</li>
+        </ul>
+      </div>
+      <div class="signal-card">
+        <div class="strength s3">약신호</div>
+        <div class="sv"><span class="swatch-gold">Aa</span>3. 컬러</div>
+        <p>메뉴명 텍스트 색상을 바꿔 “안에 혜택이 있다”는 톤만 전달하는 신호.</p>
+        <ul>
+          <li>동시 노출 개수 제한 없음</li>
+          <li>탭 진입 시 즉시 원복(방문 기반)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="kicker"><span class="num">2</span><h2>핵심 원칙 4가지</h2></div>
+    <p class="lede">운영 판단은 이 순서를 따른다.</p>
+
+    <div class="principles">
+      <div class="principle">
+        <div class="pn">01</div>
+        <div>
+          <h3>신호 3종을 강도별로 분리한다</h3>
+          <p>닷(강) · 위치(중) · 컬러(약)는 서로 대체재가 아니라 다른 역할이다. 강도가 낮은 소식에 강신호를 쓰지 않는다.</p>
+          <span class="tag">신호 분리</span>
+        </div>
+      </div>
+      <div class="principle">
+        <div class="pn">02</div>
+        <div>
+          <h3>닷은 최대 2개 동시 노출</h3>
+          <p>GNB 전체에서 닷은 항상 2개 이하로 유지한다. 3번째 요청은 닷이 아닌 위치 또는 컬러로 대체한다.</p>
+          <span class="tag">노출 제한</span>
+        </div>
+      </div>
+      <div class="principle">
+        <div class="pn">03</div>
+        <div>
+          <h3>닷+컬러 동시 적용은 신규 서비스만</h3>
+          <p>두 신호를 함께 쓰는 조합은 신규 서비스 오픈에만 허용한다. 기획전은 닷+위치 조합을 쓰고, 소규모 특가는 컬러 단독만 사용해 위계를 지킨다.</p>
+          <span class="tag">조합 제한</span>
+        </div>
+      </div>
+      <div class="principle">
+        <div class="pn">04</div>
+        <div>
+          <h3>소멸 방식은 유형에 따라 다르게 둔다</h3>
+          <p>닷은 신규 서비스인 경우 1개월(30일) 후 자동 소멸, 기획전인 경우 기획전 종료 시점에 사라진다. 같은 닷이라도 무엇에 붙어있는지에 따라 소멸 트리거가 다르다.</p>
+          <span class="tag">생명주기 분리</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="kicker"><span class="num">3</span><h2>우선순위 × 신호 조합 매트릭스</h2></div>
+    <p class="lede">요청이 들어오면 우선순위를 먼저 정하고, 그에 맞는 신호 조합만 적용한다.</p>
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th>우선순위</th>
+          <th>유형</th>
+          <th>적용 신호</th>
+          <th>판단 기준</th>
+        </tr>
+        <tr>
+          <td><span class="badge p1">1순위</span></td>
+          <td class="hi">신규 서비스 오픈</td>
+          <td><span class="sig"><span class="d"></span>닷<span class="plus">+</span><span class="c">컬러</span></span></td>
+          <td>GNB 구조가 바뀌는 경우 — 닷+컬러 동시 적용은 이 경우만 허용</td>
+        </tr>
+        <tr>
+          <td><span class="badge p2">2순위</span></td>
+          <td class="hi">대형 기획전</td>
+          <td><span class="sig"><span class="d"></span>닷<span class="plus">+</span><span class="p"></span>위치</span></td>
+          <td>닷 예산(2개) 여유가 있을 때 닷+위치로 노출</td>
+        </tr>
+        <tr>
+          <td><span class="badge p3">3순위</span></td>
+          <td class="hi">소규모 특가 / 오버플로우</td>
+          <td><span class="sig"><span class="c">컬러만</span></span></td>
+          <td>닷·위치 예산이 없을 때 컬러로 다운그레이드</td>
+        </tr>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="kicker"><span class="num">4</span><h2>생명주기 정책</h2></div>
+    <p class="lede">닷의 소멸 기준은 “무엇에 붙었는가”로 나눈다. 위치·컬러는 그 신호의 성격에 맞게 별도로 관리한다.</p>
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th>신호</th>
+          <th>유형</th>
+          <th>소멸 기준</th>
+          <th>재부여 쿨다운</th>
+        </tr>
+        <tr>
+          <td class="hi">닷</td>
+          <td>신규 서비스 오픈</td>
+          <td>1개월(30일) 후 자동 소멸</td>
+          <td>해당 없음 (1회성)</td>
+        </tr>
+        <tr>
+          <td class="hi">닷</td>
+          <td>대형 기획전</td>
+          <td>기획전 종료 시점에 자동 소멸</td>
+          <td>7일</td>
+        </tr>
+        <tr>
+          <td class="hi">위치</td>
+          <td>대형 기획전 (닷과 함께)</td>
+          <td>기획전 종료 시 원래 순서로 즉시 복귀</td>
+          <td>14일</td>
+        </tr>
+        <tr>
+          <td class="hi">컬러</td>
+          <td>소규모 특가 / 오버플로우</td>
+          <td>탭 진입 시 즉시 원복, 미방문 시 행사 종료일 기준 소멸</td>
+          <td>3일</td>
+        </tr>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="kicker"><span class="num">5</span><h2>운영 프로세스</h2></div>
+    <p class="lede">기획팀 요청이 들어오면 우선순위와 닷 예산에 따라 분기한다.</p>
+    <div class="flow">
+      <div class="flow-row">
+        <div class="step"><div class="sn">STEP 1</div><div class="st">우선순위 판정 (1·2·3순위)</div></div>
+        <div class="step"><div class="sn">STEP 2</div><div class="st">닷 예산(최대 2개) 여유 확인</div></div>
+        <div class="step"><div class="sn">STEP 3</div><div class="st">예산 있으면 닷 부여, 없으면 위치/컬러로 대체</div></div>
+        <div class="step"><div class="sn">STEP 4</div><div class="st">유형별 소멸 조건 등록 후 게시</div></div>
+      </div>
+      <div class="branch-note">
+        <b>1순위 분기</b> — 신규 서비스는 닷 예산과 무관하게 닷+컬러 동시 적용, 소멸은 1개월 고정.
+      </div>
+      <div class="branch-note">
+        <b>2·3순위 분기</b> — 닷 예산이 있으면 기획전은 닷+위치, 예산이 없으면 소규모 특가와 동일하게 컬러 단독으로 다운그레이드.
+      </div>
+    </div>
+  </section>
+
+  <div class="summary">
+    <h3>요약 — 4가지만 기억할 것</h3>
+    <ol>
+      <li><b>신호는 3종</b> — 닷(강) · 위치(중) · 컬러(약), 역할이 다르다.</li>
+      <li><b>닷은 최대 2개</b> — 항상 이 한도를 지킨다.</li>
+      <li><b>닷+컬러 동시는 신규 서비스만</b> — 기획전은 닷+위치, 특가는 컬러 단독.</li>
+      <li><b>닷 소멸은 유형별로</b> — 서비스는 1개월, 기획전은 종료 시점.</li>
+    </ol>
+  </div>
+  <div class="foot-note">LFmall UX팀 내부 정책 메모 v3 · 2026.06</div>
+
+</div>
+
+</body>
 </html>
